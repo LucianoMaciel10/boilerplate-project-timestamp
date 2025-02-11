@@ -18,6 +18,30 @@ app.get("/", function (req, res) {
   res.sendFile(__dirname + '/views/index.html');
 });
 
+app.get('/api/:date?', (req, res) => {
+  let { date } = req.params;
+
+  // Si no se proporciona una fecha, devolver la fecha y timestamp actuales
+  if (!date) {
+    const now = new Date();
+    return res.json({ unix: now.getTime(), utc: now.toUTCString() });
+  }
+
+  // Si el parámetro es un número (timestamp en milisegundos), convertirlo a número
+  if (/^\d+$/.test(date)) {
+    date = parseInt(date);
+  }
+
+  const parsedDate = new Date(date);
+
+  // Verificar si la fecha es válida
+  if (isNaN(parsedDate.getTime())) {
+    return res.status(400).json({ error: 'Invalid Date' });
+  }
+
+  // Retornar la marca de tiempo UNIX y la fecha en formato UTC
+  res.json({ unix: parsedDate.getTime(), utc: parsedDate.toUTCString() });
+});
 
 // your first API endpoint... 
 app.get("/api/hello", function (req, res) {
